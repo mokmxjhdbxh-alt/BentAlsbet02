@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة الـ 400/500 المتقدمة</title>
+    <style>
+        /* تنسيقات CSS (تم دمجها لتحسين القراءة) */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e1e1e; color: white; text-align: center; margin: 0; padding: 10px; }
+        h1 { color: #4caf50; margin-bottom: 20px; }
+        
+        /* تنسيق جدول اللاعبين */
+        .players-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        .player-card { background-color: #333; padding: 15px; border-radius: 10px; border: 2px solid #4caf50; }
+        .player-name, .round-label { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
+        .total-score { font-size: 2.5em; color: #ffeb3b; font-weight: bold; }
+        
+        /* خانات الإدخال - تم دمج type="text" و type="number" هنا */
+        input[type="number"], input[type="text"] { width: 80%; padding: 8px; margin-top: 10px; border-radius: 5px; border: none; text-align: center; font-size: 1.1em; background-color: #555; color: white; }
+        
+        /* الأزرار */
+        .btn { background-color: #4caf50; color: white; padding: 15px 30px; border: none; border-radius: 50px; font-size: 1.2em; cursor: pointer; width: 80%; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .btn:active { transform: scale(0.98); }
+        .btn-reset { background-color: #f44336; margin-top: 30px; font-size: 1em; padding: 10px 20px; }
+        .btn-edit { background-color: #2196f3; padding: 10px 20px; font-size: 1em; margin-bottom: 10px; }
+        
+        /* سجل التاريخ */
+        #history-log { margin-top: 30px; padding: 10px; background-color: #2a2a2a; border-radius: 10px; }
+        #history-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        #history-table th, #history-table td { border: 1px solid #444; padding: 8px; color: white; }
+        #history-table th { background-color: #4caf50; color: #1e1e1e; }
+        #history-table tr:nth-child(even) { background-color: #383838; }
+        
+        /* رسالة الفوز */
+        #winner-msg { display: none; background-color: rgba(0, 0, 0, 0.9); position: fixed; top: 0; left: 0; right: 0; bottom: 0; justify-content: center; align-items: center; flex-direction: column; z-index: 100; }
+        #winner-text { font-size: 3em; color: #4caf50; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>حاسبة الـ 500 المحدثة ♠️</h1>
+    <div class="round-label" id="round-counter">الجولة: 1</div>
+
+    <div class="players-container">
+        <div class="player-card">
+            <input type="text" id="name1" value="اللاعب 1" placeholder="اسم اللاعب 1">
+            <div class="total-score" id="score1">0</div>
+            <input type="text" id="input1" placeholder="سجل نقاط النشرة">
+        </div>
+        <div class="player-card">
+            <input type="text" id="name2" value="اللاعب 2" placeholder="اسم اللاعب 2">
+            <div class="total-score" id="score2">0</div>
+            <input type="text" id="input2" placeholder="سجل نقاط النشرة">
+        </div>
+        <div class="player-card">
+            <input type="text" id="name3" value="اللاعب 3" placeholder="اسم اللاعب 3">
+            <div class="total-score" id="score3">0</div>
+            <input type="text" id="input3" placeholder="سجل نقاط النشرة">
+        </div>
+        <div class="player-card">
+            <input type="text" id="name4" value="اللاعب 4" placeholder="اسم اللاعب 4">
+            <div class="total-score" id="score4">0</div>
+            <input type="text" id="input4" placeholder="سجل نقاط النشرة">
+        </div>
+    </div>
+
+    <button class="btn" onclick="addScores()">سجّل النشرة</button>
+    <button class="btn btn-reset" onclick="resetGame()">تصفير اللعبة (لعبة جديدة)</button>
+    
+    <div id="history-log">
+        <div class="round-label">سجل الجولات الأخيرة</div>
+        <button class="btn btn-edit" onclick="undoLastRound()">تراجع عن آخر نشرة</button>
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th>الجولة</th>
+                    <th id="hist-name1">اللاعب 1</th>
+                    <th id="hist-name2">اللاعب 2</th>
+                    <th id="hist-name3">اللاعب 3</th>
+                    <th id="hist-name4">اللاعب 4</th>
+                </tr>
+            </thead>
+            <tbody id="history-body">
+                </tbody>
+        </table>
+    </div>
+
+    <div id="winner-msg">
+        <div id="winner-text"></div>
+        <button class="btn" onclick="resetGame()">العب مرة ثانية</button>
+    </div>
+
+    <script>
+        // المتغيرات لحفظ مجموع النقاط وتاريخ الجولات
+        let totals = [0, 0, 0, 0];
+        let history = [];
+        let currentRound = 1;
+        const WINNING_SCORE = 500; // حد الخسارة/الفوز
+
+        // العناصر الرئيسية
+        const inputs = [
+            document.getElementById('input1'), document.getElementById('input2'),
+            document.getElementById('input3'), document.getElementById('input4')
+        ];
+        const scoresElements = [
+            document.getElementById('score1'), document.getElementById('score2'),
+            document.getElementById('score3'), document.getElementById('score4')
+        ];
+        const nameInputs = [
+            document.getElementById('name1'), document.getElementById('name2'),
+            document.getElementById('name3'), document.getElementById('name4')
+        ];
+        const histNameHeaders = [
+            document.getElementById('hist-name1'), document.getElementById('hist-name2'),
+            document.getElementById('hist-name3'), document.getElementById('hist-name4')
+        ];
+        const historyBody = document.getElementById('history-body');
+        const roundCounter = document.getElementById('round-counter');
+
+        // **********************************************
+        // ******* الدالة الجديدة لدعم الأرقام العربية *******
+        // **********************************************
+        function convertArToEn(inputString) {
+            if (!inputString) return '0';
+            // قائمة الأرقام العربية (الشرقية)
+            const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            // قائمة الأرقام الإنجليزية (الغربية)
+            const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            
+            let result = inputString.toString();
+            
+            for (let i = 0; i < arabic.length; i++) {
+                // استبدال الأرقام العربية (الشرقية) بما يقابلها الإنجليزية (الغربية)
+                result = result.replace(new RegExp(arabic[i], 'g'), english[i]);
+            }
+            return result;
+        }
+        // **********************************************
+        // **********************************************
+
+        // تحديث أسماء اللاعبين في رأس جدول السجل عند تغييرها
+        nameInputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                histNameHeaders[index].innerText = input.value;
+            });
+        });
+
+        // دالة تسجيل النقاط
+        function addScores() {
+            let roundScores = [];
+            let winnerFound = false;
+
+            // 1. جمع نقاط الجولة
+            for (let i = 0; i < 4; i++) {
+                // نستخدم convertArToEn قبل التحويل إلى رقم (parseInt)
+                let rawValue = inputs[i].value.trim(); // استخدام trim لإزالة المسافات
+                let enValue = convertArToEn(rawValue);
+                let val = parseInt(enValue) || 0; 
+                
+                roundScores.push(val);
+            }
+            
+            // تحقق إذا كانت كل المدخلات أصفار (لتجنب نشرة فارغة)
+            if (roundScores.every(score => score === 0)) {
+                alert('الرجاء إدخال نقاط النشرة قبل التسجيل.');
+                return;
+            }
+
+            // 2. تحديث المجموع التراكمي
+            for (let i = 0; i < 4; i++) {
+                totals[i] += roundScores[i];
+                scoresElements[i].innerText = totals[i];
+                inputs[i].value = ''; // مسح خانة الإدخال
+            }
+
+            // 3. إضافة الجولة للسجل
+            history.push({
+                round: currentRound,
+                scores: [...roundScores], // نقاط الجولة
+                totals: [...totals]      // المجموع التراكمي
+            });
+            
+            // 4. تحديث عرض السجل
+            updateHistoryLog();
+
+            // 5. التحقق من الفائز/الخاسر
+            for (let i = 0; i < 4; i++) {
+                if (totals[i] >= WINNING_SCORE) {
+                    showWinner(i + 1, nameInputs[i].value);
+                    winnerFound = true;
+                }
+            }
+
+            if (!winnerFound) {
+                currentRound++;
+                roundCounter.innerText = `الجولة: ${currentRound}`;
+            }
+        }
+
+        // دالة تحديث جدول السجل
+        function updateHistoryLog() {
+            historyBody.innerHTML = ''; // مسح الجدول القديم
+            
+            history.forEach((roundData) => {
+                let row = historyBody.insertRow();
+                
+                // خلية رقم الجولة
+                let cellRound = row.insertCell();
+                cellRound.innerText = roundData.round;
+                
+                // خلايا النقاط التراكمية (نضع المجموع التراكمي في الجدول)
+                roundData.totals.forEach((totalScore, index) => {
+                    let cellScore = row.insertCell();
+                    
+                    // إظهار آخر نتيجة مُسجلة بين قوسين (للتوضيح)
+                    let lastScore = roundData.scores[index];
+                    cellScore.innerText = `${totalScore} (${lastScore})`;
+                    
+                    // تمييز اللاعب الذي تخطى حد الخسارة
+                    if (totalScore >= WINNING_SCORE) {
+                        row.style.backgroundColor = '#f44336aa'; // خلفية حمراء
+                        row.style.color = 'white';
+                    }
+                });
+            });
+            // التمرير لأسفل الجدول لرؤية آخر نشرة
+            historyBody.scrollTop = historyBody.scrollHeight;
+        }
+        
+        // دالة التراجع عن آخر نشرة (تعديل النقاط)
+        function undoLastRound() {
+            if (history.length === 0) {
+                alert('لا توجد نشرات سابقة للتراجع عنها.');
+                return;
+            }
+            
+            const lastRound = history.pop(); // حذف آخر جولة
+            currentRound--;
+            roundCounter.innerText = `الجولة: ${currentRound}`;
+            
+            // استعادة المجموع التراكمي من الجولة التي قبل الأخيرة (أو صفر إن لم يكن هناك جولات سابقة)
+            if (history.length > 0) {
+                const previousTotals = history[history.length - 1].totals;
+                totals = [...previousTotals];
+            } else {
+                totals = [0, 0, 0, 0];
+            }
+            
+            // تحديث عرض المجموعات في واجهة المستخدم
+            for (let i = 0; i < 4; i++) {
+                scoresElements[i].innerText = totals[i];
+            }
+            
+            // إعادة تحديث جدول السجل
+            updateHistoryLog();
+            
+            alert(`تم التراجع عن نقاط الجولة رقم ${lastRound.round} بنجاح.`);
+            // إخفاء رسالة الفوز إن كانت ظاهرة
+            document.getElementById('winner-msg').style.display = 'none';
+        }
+
+        function showWinner(playerNum, playerName) {
+            document.getElementById('winner-msg').style.display = 'flex';
+            document.getElementById('winner-text').innerText = ` مبروك! خسرت يالشيخ  
+ ${playerName} 😹 ${WINNING_SCORE} نقطة.`;
+        }
+
+        function resetGame() {
+            // تصفير المتغيرات
+            totals = [0, 0, 0, 0];
+            history = [];
+            currentRound = 1;
+
+            // تصفير الواجهة
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById('score' + i).innerText = '0';
+                document.getElementById('input' + i).value = '';
+            }
+            document.getElementById('winner-msg').style.display = 'none';
+            document.getElementById('history-body').innerHTML = ''; // مسح السجل
+            document.getElementById('round-counter').innerText = 'الجولة: 1';
+        }
+    </script>
+
+</body>
+</html>
