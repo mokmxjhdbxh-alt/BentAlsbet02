@@ -1,286 +1,1078 @@
 <!DOCTYPE html>
+
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حاسبة الـ 400/500 المتقدمة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>حاسبة الـ 500 - أبو سلاس V14.0</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* تنسيقات CSS (تم دمجها لتحسين القراءة) */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e1e1e; color: white; text-align: center; margin: 0; padding: 10px; }
-        h1 { color: #4caf50; margin-bottom: 20px; }
-        
-        /* تنسيق جدول اللاعبين */
-        .players-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        .player-card { background-color: #333; padding: 15px; border-radius: 10px; border: 2px solid #4caf50; }
-        .player-name, .round-label { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
-        .total-score { font-size: 2.5em; color: #ffeb3b; font-weight: bold; }
-        
-        /* خانات الإدخال - تم دمج type="text" و type="number" هنا */
-        input[type="number"], input[type="text"] { width: 80%; padding: 8px; margin-top: 10px; border-radius: 5px; border: none; text-align: center; font-size: 1.1em; background-color: #555; color: white; }
-        
-        /* الأزرار */
-        .btn { background-color: #4caf50; color: white; padding: 15px 30px; border: none; border-radius: 50px; font-size: 1.2em; cursor: pointer; width: 80%; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .btn:active { transform: scale(0.98); }
-        .btn-reset { background-color: #f44336; margin-top: 30px; font-size: 1em; padding: 10px 20px; }
-        .btn-edit { background-color: #2196f3; padding: 10px 20px; font-size: 1em; margin-bottom: 10px; }
-        
-        /* سجل التاريخ */
-        #history-log { margin-top: 30px; padding: 10px; background-color: #2a2a2a; border-radius: 10px; }
-        #history-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        #history-table th, #history-table td { border: 1px solid #444; padding: 8px; color: white; }
-        #history-table th { background-color: #4caf50; color: #1e1e1e; }
-        #history-table tr:nth-child(even) { background-color: #383838; }
-        
-        /* رسالة الفوز */
-        #winner-msg { display: none; background-color: rgba(0, 0, 0, 0.9); position: fixed; top: 0; left: 0; right: 0; bottom: 0; justify-content: center; align-items: center; flex-direction: column; z-index: 100; }
-        #winner-text { font-size: 3em; color: #4caf50; margin-bottom: 20px; }
-    </style>
+        :root {
+            --bg-body:#0f0f1a; --bg-card:#1a1a2e; --text-main:#e8eaf6;
+            --text-sub:#9fa8da; --primary:#7c83fd; --accent:#ffd166;
+            --danger:#ef476f; --success:#06d6a0; --warn:#ffa552;
+            --border:#2e2e4d; --input-bg:#0d0d1f;
+            --numpad-bg:#111128; --numpad-btn:#1e1e3a;
+            --card-glow:rgba(124,131,253,0.3);
+            --numpad-pad: 18px;
+            --numpad-font: 1.5rem;
+        }
+        body.theme-dark {
+            --bg-body:#0f0f1a; --bg-card:#1a1a2e; --text-main:#e8eaf6;
+            --text-sub:#9fa8da; --primary:#7c83fd; --accent:#ffd166;
+            --border:#2e2e4d; --input-bg:#0d0d1f;
+            --numpad-bg:#111128; --numpad-btn:#1e1e3a;
+            --card-glow:rgba(124,131,253,0.3);
+        }
+        body.theme-light {
+            --bg-body:#f5f7ff; --bg-card:#ffffff; --text-main:#1a1a2e;
+            --text-sub:#5c6bc0; --primary:#5c6bc0; --accent:#f59e0b;
+            --border:#dde0f5; --input-bg:#eef0ff;
+            --numpad-bg:#e8eaff; --numpad-btn:#d5d8f5;
+            --card-glow:rgba(92,107,192,0.2);
+        }
+        body.theme-gold {
+            --bg-body:#1a1500; --bg-card:#242000; --text-main:#fff8dc;
+            --text-sub:#d4ac0d; --primary:#f5c518; --accent:#ffd700;
+            --border:#3d3500; --input-bg:#100f00;
+            --numpad-bg:#161200; --numpad-btn:#2a2500;
+            --card-glow:rgba(245,197,24,0.3);
+        }
+        body.theme-green {
+            --bg-body:#071a0f; --bg-card:#0d2b18; --text-main:#d4f5e2;
+            --text-sub:#52b788; --primary:#40c074; --accent:#b7e4c7;
+            --border:#1b4332; --input-bg:#040f08;
+            --numpad-bg:#061309; --numpad-btn:#112518;
+            --card-glow:rgba(64,192,116,0.3);
+        }
+        body.theme-ocean {
+            --bg-body:#031b2e; --bg-card:#052844; --text-main:#caf0f8;
+            --text-sub:#90e0ef; --primary:#00b4d8; --accent:#48cae4;
+            --border:#0a3d5c; --input-bg:#021220;
+            --numpad-bg:#020e18; --numpad-btn:#062035;
+            --card-glow:rgba(0,180,216,0.3);
+        }
+        body.theme-rose {
+            --bg-body:#1a0a12; --bg-card:#2a1020; --text-main:#ffe0ec;
+            --text-sub:#f48fb1; --primary:#f06292; --accent:#ffb3c6;
+            --border:#4a1030; --input-bg:#100508;
+            --numpad-bg:#0d0408; --numpad-btn:#220c18;
+            --card-glow:rgba(240,98,146,0.3);
+        }
+
+```
+    /* numpad sizes */
+    body.kb-small  { --numpad-pad:10px; --numpad-font:1.15rem; }
+    body.kb-medium { --numpad-pad:18px; --numpad-font:1.5rem; }
+    body.kb-large  { --numpad-pad:26px; --numpad-font:1.85rem; }
+
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+
+    body {
+        font-family:'Cairo','Segoe UI',Tahoma,sans-serif;
+        background:var(--bg-body); color:var(--text-main);
+        text-align:center; padding:10px;
+        padding-bottom:300px;
+        transition:background 0.35s,color 0.35s;
+        user-select:none; overflow-x:hidden; min-height:100vh;
+    }
+
+    /* ══ TOP BAR ══ */
+    .top-bar {
+        display:flex; justify-content:space-between;
+        max-width:500px; margin:0 auto 12px; gap:8px; align-items:center;
+    }
+    .icon-btn {
+        background:var(--bg-card); border:1px solid var(--border);
+        color:var(--text-main); padding:10px 8px; border-radius:12px;
+        flex:1; cursor:pointer; font-family:'Cairo',sans-serif;
+        font-size:0.82rem; font-weight:700;
+        transition:background 0.2s,transform 0.1s;
+    }
+    .icon-btn:active { transform:scale(0.95); }
+    .menu-btn {
+        background:var(--bg-card); border:1px solid var(--border);
+        color:var(--text-main); width:44px; height:44px;
+        border-radius:12px; cursor:pointer; font-size:1.3rem;
+        display:flex; align-items:center; justify-content:center;
+        flex-shrink:0; transition:background 0.2s,transform 0.1s;
+    }
+    .menu-btn:active { transform:scale(0.93); }
+
+    /* ══ DROPDOWN — fixed overlay, لا يزعزع الصفحة ══ */
+    .menu-wrapper { position:relative; }
+    .dropdown {
+        display:none;
+        position:fixed;
+        top:0; right:0; bottom:0;
+        width:260px;
+        background:var(--bg-card);
+        border-left:1px solid var(--border);
+        z-index:2000;
+        overflow-y:auto;
+        box-shadow:-8px 0 32px rgba(0,0,0,0.5);
+        animation:slideInRight 0.22s ease;
+    }
+    @keyframes slideInRight {
+        from { transform:translateX(100%); opacity:0; }
+        to   { transform:translateX(0);    opacity:1; }
+    }
+    .dropdown.open { display:block; }
+    .menu-section-title {
+        padding:14px 16px 8px;
+        font-size:0.75rem; font-weight:700;
+        color:var(--text-sub); text-align:right;
+        border-bottom:1px solid var(--border);
+        letter-spacing:0.5px; position:sticky; top:0;
+        background:var(--bg-card); z-index:1;
+    }
+    .menu-close-row {
+        display:flex; align-items:center; justify-content:space-between;
+        padding:14px 16px;
+        border-bottom:1px solid var(--border);
+    }
+    .menu-close-row span { font-weight:900; font-size:1rem; color:var(--primary); }
+    .menu-close-x {
+        background:var(--border); border:none; border-radius:8px;
+        color:var(--text-main); width:32px; height:32px;
+        cursor:pointer; font-size:1rem; font-family:'Cairo',sans-serif;
+        display:flex; align-items:center; justify-content:center;
+    }
+    .themes-grid {
+        display:grid; grid-template-columns:repeat(3,1fr);
+        gap:8px; padding:12px;
+    }
+    .theme-chip {
+        border-radius:10px; padding:8px 4px;
+        cursor:pointer; font-size:0.75rem; font-weight:700;
+        border:2px solid transparent;
+        transition:transform 0.15s, border-color 0.2s;
+        font-family:'Cairo',sans-serif;
+    }
+    .theme-chip:active { transform:scale(0.93); }
+    .theme-chip.active-theme { border-color:white !important; }
+
+    /* كيبورد سايز */
+    .kb-size-row {
+        display:flex; gap:6px; padding:10px 12px;
+    }
+    .kb-size-btn {
+        flex:1; padding:8px 4px; border-radius:8px;
+        background:var(--numpad-btn); border:2px solid transparent;
+        color:var(--text-main); font-family:'Cairo',sans-serif;
+        font-size:0.78rem; font-weight:700; cursor:pointer;
+        transition:border-color 0.2s,transform 0.1s;
+    }
+    .kb-size-btn:active { transform:scale(0.93); }
+    .kb-size-btn.active-kb { border-color:var(--primary); color:var(--primary); }
+
+    /* حد الفوز / الخسارة */
+    .limit-row {
+        display:flex; align-items:center; justify-content:space-between;
+        padding:12px 16px; border-bottom:1px solid var(--border);
+        gap:8px;
+    }
+    .limit-label { font-size:0.88rem; font-weight:700; color:var(--text-main); }
+    .limit-input {
+        background:var(--input-bg); border:1px solid var(--border);
+        color:var(--accent); border-radius:8px; padding:6px 10px;
+        width:80px; text-align:center;
+        font-family:'Cairo',sans-serif; font-size:0.95rem; font-weight:700;
+    }
+    .limit-input:focus { outline:none; border-color:var(--primary); }
+
+    .menu-item {
+        display:flex; align-items:center; gap:10px;
+        padding:13px 16px; cursor:pointer;
+        font-size:0.9rem; font-weight:700;
+        transition:background 0.15s;
+        border-bottom:1px solid var(--border);
+        text-align:right;
+    }
+    .menu-item:active { background:var(--border); }
+    .menu-item .mi-icon { font-size:1.1rem; width:22px; text-align:center; flex-shrink:0; }
+
+    /* ══ HEADER ══ */
+    .header-top {
+        max-width:500px; margin:0 auto 14px;
+        display:flex; justify-content:space-between; align-items:center;
+    }
+    h2 { color:var(--primary); font-size:1.4rem; font-weight:900; }
+    #round-counter {
+        background:var(--bg-card); padding:5px 14px;
+        border-radius:20px; border:1px solid var(--border);
+        font-size:0.85rem; font-weight:700; color:var(--text-sub);
+    }
+
+    /* ══ PLAYER CARDS ══ */
+    .players-container {
+        display:grid; grid-template-columns:repeat(2,1fr);
+        gap:10px; max-width:500px; margin:0 auto;
+    }
+    .player-card {
+        background:var(--bg-card); padding:14px 8px 12px;
+        border-radius:18px; border:2px solid var(--border);
+        position:relative; cursor:pointer;
+        transition:border-color 0.25s,box-shadow 0.25s,transform 0.15s;
+    }
+    .player-card:active { transform:scale(0.97); }
+    .player-card.active-card {
+        border-color:var(--primary);
+        box-shadow:0 0 16px var(--card-glow);
+    }
+    .name-wrapper {
+        display:flex; align-items:center; justify-content:center;
+        gap:4px; margin-bottom:6px; padding:0 4px;
+    }
+    .name-input {
+        background:transparent; border:none;
+        border-bottom:1px solid var(--border);
+        color:var(--primary); text-align:center;
+        font-weight:700; font-family:'Cairo',sans-serif;
+        width:0; flex:1; font-size:0.95rem; max-width:110px;
+        overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+        font-size:16px; /* منع zoom على iOS */
+    }
+    .name-input:focus { outline:none; border-bottom-color:var(--primary); }
+    .del-name {
+        background:rgba(239,71,111,0.15); color:var(--danger);
+        border:none; border-radius:50%; width:22px; height:22px;
+        cursor:pointer; font-size:13px;
+        display:flex; align-items:center; justify-content:center;
+        flex-shrink:0; transition:background 0.2s;
+    }
+    .del-name:active { background:rgba(239,71,111,0.35); }
+    .total-score {
+        font-size:2.6em; color:var(--accent);
+        font-weight:900; margin:4px 0; line-height:1.1;
+        transition:color 0.3s;
+    }
+    .total-score.danger { color:var(--danger); animation:pulse 1s infinite; }
+    .total-score.warn   { color:var(--warn); }
+    .total-score.near-win { color:#ff9f1c; animation:nearPulse 0.8s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+    @keyframes nearPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+
+    .score-display {
+        width:85%; padding:8px 10px; border-radius:10px;
+        background:var(--input-bg); color:var(--text-main);
+        font-size:1.5rem; font-weight:700;
+        font-family:'Cairo',sans-serif; min-height:42px;
+        border:2px solid transparent; margin:0 auto;
+        transition:border-color 0.2s,box-shadow 0.2s;
+    }
+    .active-input {
+        border-color:var(--primary) !important;
+        box-shadow:0 0 10px var(--card-glow);
+    }
+    .is-dealer::after {
+        content:"🃏 الموزع";
+        position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+        background:var(--danger); color:white;
+        padding:2px 12px; border-radius:20px;
+        font-size:0.68rem; font-weight:700; white-space:nowrap;
+    }
+    /* شارة الاقتراب */
+    .near-win-badge {
+        position:absolute; bottom:-10px; left:50%; transform:translateX(-50%);
+        background:#ff9f1c; color:#000;
+        padding:2px 10px; border-radius:20px;
+        font-size:0.65rem; font-weight:700; white-space:nowrap;
+        display:none;
+    }
+    .near-win-badge.show { display:block; }
+
+    /* ══ SUBMIT ══ */
+    #main-submit {
+        background:var(--border); color:white; padding:16px;
+        border:none; border-radius:14px; width:95%; max-width:500px;
+        margin-top:14px; font-weight:700; font-size:1.05rem;
+        font-family:'Cairo',sans-serif;
+        transition:background 0.25s,opacity 0.25s,transform 0.1s;
+        opacity:0.5; cursor:pointer;
+    }
+    #main-submit:active { transform:scale(0.98); }
+
+    /* ══ ACTION ROW ══ */
+    .action-row {
+        display:flex; gap:10px; max-width:500px;
+        margin:12px auto; width:95%;
+    }
+    .action-row button {
+        flex:1; padding:14px; border-radius:12px;
+        border:none; font-weight:700;
+        font-family:'Cairo',sans-serif; font-size:0.95rem;
+        cursor:pointer; transition:opacity 0.2s,transform 0.1s;
+    }
+    .action-row button:active { transform:scale(0.97); opacity:0.85; }
+
+    /* ══ NUMPAD ══ */
+    .numpad {
+        position:fixed; bottom:0; left:0; width:100%;
+        background:var(--numpad-bg);
+        padding:10px 10px 14px;
+        display:grid; grid-template-columns:repeat(4,1fr);
+        gap:6px; z-index:1000;
+        border-top:1px solid var(--border);
+        border-radius:20px 20px 0 0;
+        box-shadow:0 -4px 20px rgba(0,0,0,0.4);
+        transition:padding 0.2s;
+    }
+    .num-btn {
+        background:var(--numpad-btn); color:var(--text-main);
+        border:1px solid var(--border);
+        padding:var(--numpad-pad) 0;
+        font-size:var(--numpad-font); font-weight:700;
+        font-family:'Cairo',sans-serif;
+        border-radius:12px; cursor:pointer;
+        touch-action:manipulation;
+        transition:background 0.15s,transform 0.1s,padding 0.2s,font-size 0.2s;
+    }
+    .num-btn:active { background:var(--border); transform:scale(0.93); }
+
+    /* ══ FOOTER ══ */
+    .footer-credits {
+        margin:20px auto; padding:16px;
+        color:var(--text-sub); font-size:0.85rem;
+        border-top:1px solid var(--border); max-width:500px;
+    }
+
+    /* ══ QR MODAL ══ */
+    #qr-modal {
+        display:none; position:fixed; inset:0;
+        background:rgba(0,0,0,0.92); z-index:3000;
+        justify-content:center; align-items:center; flex-direction:column;
+        padding:20px;
+    }
+    .qr-box {
+        background:var(--bg-card); border:1px solid var(--border);
+        border-radius:24px; padding:28px 24px;
+        max-width:320px; width:100%;
+        animation:popIn 0.3s ease;
+    }
+    .qr-title { color:var(--primary); font-size:1.1rem; font-weight:900; margin-bottom:6px; }
+    .qr-subtitle { color:var(--text-sub); font-size:0.8rem; margin-bottom:16px; }
+    #qrcode {
+        background:white; padding:12px;
+        border-radius:14px; display:inline-block; margin-bottom:16px;
+    }
+    .qr-scores {
+        background:var(--input-bg); border-radius:12px;
+        padding:12px; margin-bottom:16px;
+        text-align:right; font-size:0.9rem;
+        color:var(--text-main); line-height:2;
+    }
+    .qr-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .qr-btn {
+        padding:12px; border-radius:12px; border:none;
+        font-family:'Cairo',sans-serif; font-weight:700;
+        font-size:0.9rem; cursor:pointer; transition:transform 0.1s;
+    }
+    .qr-btn:active { transform:scale(0.96); }
+    .qr-close {
+        grid-column:span 2; padding:12px;
+        border-radius:12px; border:none;
+        background:var(--border); color:var(--text-main);
+        font-family:'Cairo',sans-serif; font-weight:700;
+        font-size:0.9rem; cursor:pointer; margin-top:4px;
+    }
+
+    /* ══ WINNER OVERLAY ══ */
+    #winner-overlay {
+        display:none; position:fixed; inset:0;
+        background:rgba(0,0,0,0.88); z-index:4000;
+        justify-content:center; align-items:center; flex-direction:column;
+    }
+    .winner-box {
+        background:var(--bg-card); border:2px solid var(--accent);
+        border-radius:24px; padding:40px 30px; text-align:center;
+        animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+        max-width:320px; width:90%;
+    }
+    .winner-box h1 { font-size:3rem; margin-bottom:10px; }
+    .winner-box h2 { color:var(--accent); font-size:1.8rem; margin-bottom:8px; }
+    .winner-box p  { color:var(--text-sub); margin-bottom:25px; }
+    .winner-close-btn {
+        background:var(--success); color:#000;
+        border:none; border-radius:12px; padding:14px 40px;
+        font-size:1.1rem; font-weight:700;
+        font-family:'Cairo',sans-serif; cursor:pointer;
+    }
+
+    /* ══ LOSER OVERLAY ══ */
+    #loser-overlay {
+        display:none; position:fixed; inset:0;
+        background:rgba(0,0,0,0.9); z-index:4000;
+        justify-content:center; align-items:center; flex-direction:column;
+    }
+    .loser-box {
+        background:var(--bg-card); border:2px solid var(--danger);
+        border-radius:24px; padding:36px 28px; text-align:center;
+        animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+        max-width:320px; width:90%;
+    }
+    .loser-emoji { font-size:3.5rem; margin-bottom:8px; }
+    .loser-name { color:var(--danger); font-size:1.6rem; font-weight:900; margin-bottom:10px; }
+    .loser-msg {
+        color:var(--text-sub); font-size:1rem;
+        line-height:1.7; margin-bottom:20px;
+    }
+    .loser-close-btn {
+        background:var(--danger); color:white;
+        border:none; border-radius:12px; padding:13px 36px;
+        font-size:1rem; font-weight:700;
+        font-family:'Cairo',sans-serif; cursor:pointer;
+    }
+
+    @keyframes popIn {
+        from { transform:scale(0.5); opacity:0; }
+        to   { transform:scale(1); opacity:1; }
+    }
+
+    /* ══ TOAST ══ */
+    #toast {
+        position:fixed; top:20px; left:50%;
+        transform:translateX(-50%) translateY(-80px);
+        background:var(--bg-card); border:1px solid var(--border);
+        color:var(--text-main); padding:10px 24px;
+        border-radius:30px; font-family:'Cairo',sans-serif;
+        font-weight:700; font-size:0.95rem; z-index:5000;
+        transition:transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+        pointer-events:none; box-shadow:0 4px 24px rgba(0,0,0,0.4);
+    }
+    #toast.show { transform:translateX(-50%) translateY(0); }
+
+    /* ══ CONFETTI ══ */
+    #confetti-canvas {
+        position:fixed; inset:0; z-index:3999;
+        pointer-events:none; display:none;
+    }
+
+    /* overlay لإغلاق القائمة */
+    #menu-overlay {
+        display:none; position:fixed; inset:0; z-index:1999;
+        background:rgba(0,0,0,0.45);
+    }
+    #menu-overlay.open { display:block; }
+</style>
+```
+
 </head>
-<body>
+<body class="theme-dark kb-medium" onload="initApp()">
 
-    <h1>حاسبة الـ 500 المحدثة ♠️</h1>
-    <div class="round-label" id="round-counter">الجولة: 1</div>
+<canvas id="confetti-canvas"></canvas>
 
-    <div class="players-container">
-        <div class="player-card">
-            <input type="text" id="name1" value="اللاعب 1" placeholder="اسم اللاعب 1">
-            <div class="total-score" id="score1">0</div>
-            <input type="text" id="input1" placeholder="سجل نقاط النشرة">
+<div id="menu-overlay" onclick="closeMenu()"></div>
+
+<!-- TOP BAR: بس تصفير + قائمة -->
+
+<div class="top-bar">
+    <button class="icon-btn" onclick="confirmReset()" style="color:var(--danger);">🔄 تصفير</button>
+    <div class="menu-wrapper">
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+```
+    <!-- DROPDOWN — sidebar -->
+    <div class="dropdown" id="dropdown">
+        <div class="menu-close-row">
+            <span>⚙️ الإعدادات</span>
+            <button class="menu-close-x" onclick="closeMenu()">✕</button>
         </div>
-        <div class="player-card">
-            <input type="text" id="name2" value="اللاعب 2" placeholder="اسم اللاعب 2">
-            <div class="total-score" id="score2">0</div>
-            <input type="text" id="input2" placeholder="سجل نقاط النشرة">
+
+        <div class="menu-section-title">🎨 المظهر</div>
+        <div class="themes-grid">
+            <div class="theme-chip" style="background:#1a1a2e;color:#e8eaf6;border-color:#2e2e4d;" onclick="setTheme('dark')">🌙 ليلي</div>
+            <div class="theme-chip" style="background:#f5f7ff;color:#1a1a2e;border-color:#dde0f5;" onclick="setTheme('light')">☀️ نهاري</div>
+            <div class="theme-chip" style="background:#242000;color:#ffd700;border-color:#3d3500;" onclick="setTheme('gold')">✨ ذهبي</div>
+            <div class="theme-chip" style="background:#0d2b18;color:#d4f5e2;border-color:#1b4332;" onclick="setTheme('green')">🌿 أخضر</div>
+            <div class="theme-chip" style="background:#052844;color:#caf0f8;border-color:#0a3d5c;" onclick="setTheme('ocean')">🌊 أزرق</div>
+            <div class="theme-chip" style="background:#2a1020;color:#ffe0ec;border-color:#4a1030;" onclick="setTheme('rose')">🌸 وردي</div>
         </div>
-        <div class="player-card">
-            <input type="text" id="name3" value="اللاعب 3" placeholder="اسم اللاعب 3">
-            <div class="total-score" id="score3">0</div>
-            <input type="text" id="input3" placeholder="سجل نقاط النشرة">
+
+        <div class="menu-section-title">⌨️ حجم الكيبورد</div>
+        <div class="kb-size-row">
+            <button class="kb-size-btn" id="kb-small"  onclick="setKbSize('small')">صغير</button>
+            <button class="kb-size-btn active-kb" id="kb-medium" onclick="setKbSize('medium')">متوسط</button>
+            <button class="kb-size-btn" id="kb-large"  onclick="setKbSize('large')">كبير</button>
         </div>
-        <div class="player-card">
-            <input type="text" id="name4" value="اللاعب 4" placeholder="اسم اللاعب 4">
-            <div class="total-score" id="score4">0</div>
-            <input type="text" id="input4" placeholder="سجل نقاط النشرة">
+
+        <div class="menu-section-title">🏆 حدود اللعبة</div>
+        <div class="limit-row">
+            <span class="limit-label">🥇 حد الفوز</span>
+            <input class="limit-input" type="number" id="win-limit-input" value="500"
+                min="100" max="9999" onchange="saveSettings()" onclick="event.stopPropagation()">
+        </div>
+        <div class="limit-row" style="border-bottom:1px solid var(--border);">
+            <span class="limit-label">💀 حد الخسارة<br><small style="color:var(--text-sub);font-size:0.7rem">اتركه فارغ لتعطيله</small></span>
+            <input class="limit-input" type="number" id="lose-limit-input" placeholder="—"
+                min="100" max="9999" onchange="saveSettings()" onclick="event.stopPropagation()">
+        </div>
+
+        <div class="menu-section-title" style="margin-top:4px;">📋 خيارات</div>
+        <div class="menu-item" onclick="openQR(); closeMenu();">
+            <span class="mi-icon">📤</span> مشاركة النشرة
+        </div>
+        <div class="menu-item" onclick="copyResults(); closeMenu();">
+            <span class="mi-icon">📋</span> نسخ النتائج
+        </div>
+        <div class="menu-item" onclick="confirmReset(); closeMenu();" style="color:var(--danger);">
+            <span class="mi-icon">🔄</span> تصفير النشرة
         </div>
     </div>
+</div>
+```
 
-    <button class="btn" onclick="addScores()">سجّل النشرة</button>
-    <button class="btn btn-reset" onclick="resetGame()">تصفير اللعبة (لعبة جديدة)</button>
-    
-    <div id="history-log">
-        <div class="round-label">سجل الجولات الأخيرة</div>
-        <button class="btn btn-edit" onclick="undoLastRound()">تراجع عن آخر نشرة</button>
-        <table id="history-table">
-            <thead>
-                <tr>
-                    <th>الجولة</th>
-                    <th id="hist-name1">اللاعب 1</th>
-                    <th id="hist-name2">اللاعب 2</th>
-                    <th id="hist-name3">اللاعب 3</th>
-                    <th id="hist-name4">اللاعب 4</th>
-                </tr>
-            </thead>
-            <tbody id="history-body">
-                </tbody>
-        </table>
+</div>
+
+<!-- HEADER -->
+
+<div class="header-top">
+    <h2>حاسبة الـ 500 🏆</h2>
+    <span id="round-counter">الجولة: 1</span>
+</div>
+
+<!-- PLAYERS -->
+
+<div class="players-container" id="players-grid"></div>
+
+<!-- SUBMIT -->
+
+<button id="main-submit" onclick="addScores()">المجموع: 0 (المطلوب 130)</button>
+
+<!-- ACTIONS -->
+
+<div class="action-row">
+    <button onclick="undo()" style="background:#1565C0;color:white;flex:1.5">↩️ تراجع</button>
+    <button onclick="moveDealer()" style="background:#6a1b9a;color:white;">🎯 الموزع</button>
+</div>
+
+<div class="footer-credits">
+    تطوير وبرمجة<br>
+    <strong style="color:var(--primary);font-size:1.1rem">أبو سلاس © 2026</strong>
+</div>
+
+<!-- NUMPAD -->
+
+<div class="numpad" id="numpad" dir="ltr">
+    <button class="num-btn" onclick="pressNum('1')">1</button>
+    <button class="num-btn" onclick="pressNum('2')">2</button>
+    <button class="num-btn" onclick="pressNum('3')">3</button>
+    <button class="num-btn" onclick="pressNum('del')" style="background:#2a2a45;">⌫</button>
+    <button class="num-btn" onclick="pressNum('4')">4</button>
+    <button class="num-btn" onclick="pressNum('5')">5</button>
+    <button class="num-btn" onclick="pressNum('6')">6</button>
+    <button class="num-btn" onclick="setActive((activeIndex+1)%4)"
+        style="background:var(--primary);color:#000;font-size:1rem;">التالي ▶</button>
+    <button class="num-btn" onclick="pressNum('7')">7</button>
+    <button class="num-btn" onclick="pressNum('8')">8</button>
+    <button class="num-btn" onclick="pressNum('9')">9</button>
+    <button class="num-btn" onclick="addScores()"
+        style="background:var(--success);color:#000;font-size:1rem;">قيد ✓</button>
+    <button class="num-btn" onclick="pressNum('0')" style="grid-column:span 2;">0</button>
+    <button class="num-btn" onclick="pressNum('-')" style="background:#2a2a45;">−</button>
+    <button class="num-btn" onclick="confirmReset()" style="background:var(--danger);color:white;">CLR</button>
+</div>
+
+<!-- QR MODAL -->
+
+<div id="qr-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:3000;justify-content:center;align-items:center;padding:20px;flex-direction:column;">
+    <div class="qr-box">
+        <div class="qr-title">📤 مشاركة النشرة</div>
+        <div class="qr-subtitle">امسح الباركود أو استخدم الأزرار أدناه</div>
+        <div id="qrcode"></div>
+        <div class="qr-scores" id="qr-scores-text"></div>
+        <div class="qr-actions">
+            <button class="qr-btn" style="background:var(--success);color:#000;" onclick="shareResults()">📲 مشاركة</button>
+            <button class="qr-btn" style="background:var(--primary);color:#000;" onclick="copyResults()">📋 نسخ</button>
+            <button class="qr-close" onclick="closeQR()">✕ إغلاق</button>
+        </div>
     </div>
+</div>
 
-    <div id="winner-msg">
-        <div id="winner-text"></div>
-        <button class="btn" onclick="resetGame()">العب مرة ثانية</button>
+<!-- WINNER -->
+
+<div id="winner-overlay">
+    <div class="winner-box">
+        <h1>🏆</h1>
+        <h2 id="winner-name"></h2>
+        <p id="winner-score"></p>
+        <button class="winner-close-btn" onclick="closeWinner()">متابعة اللعب</button>
     </div>
+</div>
 
-    <script>
-        // المتغيرات لحفظ مجموع النقاط وتاريخ الجولات
-        let totals = [0, 0, 0, 0];
-        let history = [];
-        let currentRound = 1;
-        const WINNING_SCORE = 500; // حد الخسارة/الفوز
+<!-- LOSER -->
 
-        // العناصر الرئيسية
-        const inputs = [
-            document.getElementById('input1'), document.getElementById('input2'),
-            document.getElementById('input3'), document.getElementById('input4')
-        ];
-        const scoresElements = [
-            document.getElementById('score1'), document.getElementById('score2'),
-            document.getElementById('score3'), document.getElementById('score4')
-        ];
-        const nameInputs = [
-            document.getElementById('name1'), document.getElementById('name2'),
-            document.getElementById('name3'), document.getElementById('name4')
-        ];
-        const histNameHeaders = [
-            document.getElementById('hist-name1'), document.getElementById('hist-name2'),
-            document.getElementById('hist-name3'), document.getElementById('hist-name4')
-        ];
-        const historyBody = document.getElementById('history-body');
-        const roundCounter = document.getElementById('round-counter');
+<div id="loser-overlay">
+    <div class="loser-box">
+        <div class="loser-emoji">😂</div>
+        <div class="loser-name" id="loser-name"></div>
+        <div class="loser-msg" id="loser-msg"></div>
+        <button class="loser-close-btn" onclick="closeLoser()">حسناً 😔</button>
+    </div>
+</div>
 
-        // **********************************************
-        // ******* الدالة الجديدة لدعم الأرقام العربية *******
-        // **********************************************
-        function convertArToEn(inputString) {
-            if (!inputString) return '0';
-            // قائمة الأرقام العربية (الشرقية)
-            const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-            // قائمة الأرقام الإنجليزية (الغربية)
-            const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-            
-            let result = inputString.toString();
-            
-            for (let i = 0; i < arabic.length; i++) {
-                // استبدال الأرقام العربية (الشرقية) بما يقابلها الإنجليزية (الغربية)
-                result = result.replace(new RegExp(arabic[i], 'g'), english[i]);
-            }
-            return result;
+<!-- TOAST -->
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════
+// STATE
+// ═══════════════════════
+let totals=[0,0,0,0], history=[], currentRound=1, dealerIndex=0,
+    activeIndex=0, winnerShown=false, loserShown=false,
+    winLimit=500, loseLimit=null;
+
+// رسائل سخرية عند الخسارة
+const LOSER_MSGS = [
+    "هاردلك يالأمير 👑\nواضح اللعب مو مجالك، جرب الطبخ؟",
+    "ماشاء الله عليك 🎉\nوصلت للقاع بسرعة قياسية!",
+    "لا تحزن 😅\nالخسارة تجربة.. وأنت خبرت كثير منها الليلة",
+    "يالله يالله 🙈\nحتى الكمبيوتر تعاطف معك وهو يحسب نقاطك",
+    "ربك ستر 😂\nبس ما ستر نقاطك للأسف",
+    "طلعت أمير الخاسرين 👑\nلازم موهبة تخسر بهالشكل!",
+    "مبروك على الإنجاز 🏅\nأول مرة في التاريخ يخسر بهالسرعة"
+];
+
+// ═══════════════════════
+// INIT
+// ═══════════════════════
+function initApp() {
+    const grid = document.getElementById('players-grid');
+    let html = '';
+    for (let i=0;i<4;i++) {
+        html += `
+        <div class="player-card" id="card${i}" onclick="setActive(${i})">
+            <div class="name-wrapper">
+                <input type="text" class="name-input" id="name${i}" value="لاعب ${i+1}"
+                    maxlength="12" onchange="saveNames()" onclick="event.stopPropagation()">
+                <button class="del-name" onclick="clearSingleName(${i},event)">×</button>
+            </div>
+            <div class="total-score" id="score${i}">0</div>
+            <div class="score-display" id="input${i}"></div>
+            <div class="near-win-badge" id="near${i}">🔥 قريب!</div>
+        </div>`;
+    }
+    grid.innerHTML = html;
+    loadState();
+    loadTheme();
+    loadKbSize();
+    adjustBodyPadding();
+    setActive(0);
+}
+
+function adjustBodyPadding() {
+    const n = document.getElementById('numpad');
+    if (n) document.body.style.paddingBottom = (n.offsetHeight + 20) + 'px';
+}
+window.addEventListener('resize', adjustBodyPadding);
+
+// ═══════════════════════
+// MENU
+// ═══════════════════════
+function toggleMenu() {
+    const dd = document.getElementById('dropdown');
+    const ov = document.getElementById('menu-overlay');
+    dd.classList.toggle('open');
+    ov.classList.toggle('open');
+}
+function closeMenu() {
+    document.getElementById('dropdown').classList.remove('open');
+    document.getElementById('menu-overlay').classList.remove('open');
+}
+
+// ═══════════════════════
+// THEMES
+// ═══════════════════════
+const THEMES = ['dark','light','gold','green','ocean','rose'];
+function setTheme(theme) {
+    THEMES.forEach(t => document.body.classList.remove('theme-'+t));
+    document.body.classList.add('theme-'+theme);
+    localStorage.setItem('theme_v14', theme);
+    document.querySelectorAll('.theme-chip').forEach((el,i) => {
+        el.classList.toggle('active-theme', THEMES[i] === theme);
+    });
+    closeMenu();
+}
+function loadTheme() {
+    const saved = localStorage.getItem('theme_v14') || 'dark';
+    setTheme(saved);
+}
+
+// ═══════════════════════
+// KEYBOARD SIZE
+// ═══════════════════════
+function setKbSize(size) {
+    ['small','medium','large'].forEach(s => {
+        document.body.classList.remove('kb-'+s);
+        document.getElementById('kb-'+s).classList.remove('active-kb');
+    });
+    document.body.classList.add('kb-'+size);
+    document.getElementById('kb-'+size).classList.add('active-kb');
+    localStorage.setItem('kbSize_v14', size);
+    setTimeout(adjustBodyPadding, 250);
+}
+function loadKbSize() {
+    const saved = localStorage.getItem('kbSize_v14') || 'medium';
+    setKbSize(saved);
+}
+
+// ═══════════════════════
+// SETTINGS (حدود)
+// ═══════════════════════
+function saveSettings() {
+    const wl = parseInt(document.getElementById('win-limit-input').value);
+    const ll = document.getElementById('lose-limit-input').value;
+    winLimit  = (wl && wl > 0) ? wl : 500;
+    loseLimit = (ll && parseInt(ll) > 0) ? parseInt(ll) : null;
+    document.getElementById('win-limit-input').value = winLimit;
+    localStorage.setItem('settings_v14', JSON.stringify({winLimit, loseLimit}));
+    updateUI();
+    showToast('✅ تم حفظ الإعدادات');
+}
+function loadSettings() {
+    try {
+        const s = JSON.parse(localStorage.getItem('settings_v14'));
+        if (s) {
+            winLimit  = s.winLimit  || 500;
+            loseLimit = s.loseLimit || null;
+            document.getElementById('win-limit-input').value  = winLimit;
+            document.getElementById('lose-limit-input').value = loseLimit || '';
         }
-        // **********************************************
-        // **********************************************
+    } catch(e){}
+}
 
-        // تحديث أسماء اللاعبين في رأس جدول السجل عند تغييرها
-        nameInputs.forEach((input, index) => {
-            input.addEventListener('input', () => {
-                histNameHeaders[index].innerText = input.value;
-            });
+// ═══════════════════════
+// NAMES
+// ═══════════════════════
+function clearSingleName(idx, e) {
+    e.stopPropagation();
+    const el = document.getElementById('name'+idx);
+    el.value = ''; el.focus();
+}
+function saveNames() {
+    localStorage.setItem('names_v14', JSON.stringify([0,1,2,3].map(i=>document.getElementById('name'+i).value)));
+}
+function loadNames() {
+    try {
+        const n = JSON.parse(localStorage.getItem('names_v14'));
+        if (Array.isArray(n)) n.forEach((v,i)=>{ const el=document.getElementById('name'+i); if(el&&v) el.value=v; });
+    } catch(e){}
+}
+
+// ═══════════════════════
+// STATE SAVE/LOAD
+// ═══════════════════════
+function saveState() {
+    try { localStorage.setItem('gameState_v14', JSON.stringify({totals,currentRound,dealerIndex})); } catch(e){}
+}
+function loadState() {
+    loadNames();
+    loadSettings();
+    try {
+        const raw = localStorage.getItem('gameState_v14');
+        if (raw) {
+            const s = JSON.parse(raw);
+            if (Array.isArray(s.totals) && s.totals.length===4) {
+                totals=s.totals; currentRound=s.currentRound||1; dealerIndex=s.dealerIndex||0;
+            }
+        }
+    } catch(e){}
+    updateUI();
+}
+
+// ═══════════════════════
+// ACTIVE
+// ═══════════════════════
+function setActive(idx) {
+    activeIndex=idx;
+    document.querySelectorAll('.score-display').forEach(el=>el.classList.remove('active-input'));
+    document.querySelectorAll('.player-card').forEach(el=>el.classList.remove('active-card'));
+    document.getElementById('input'+idx).classList.add('active-input');
+    document.getElementById('card'+idx).classList.add('active-card');
+}
+
+// ═══════════════════════
+// NUMPAD
+// ═══════════════════════
+function pressNum(val) {
+    const display = document.getElementById('input'+activeIndex);
+    const cur = display.innerText;
+    if (val==='del') display.innerText = cur.slice(0,-1);
+    else if (val==='-') { if (cur===''||cur==='0') display.innerText='-'; }
+    else if (cur.length<5) display.innerText += val;
+    validateInputs();
+}
+
+// ═══════════════════════
+// VALIDATE
+// ═══════════════════════
+function validateInputs() {
+    const vals = [0,1,2,3].map(i=>parseInt(document.getElementById('input'+i).innerText)||0);
+    const sum = vals.reduce((a,b)=>a+b,0);
+    const btn = document.getElementById('main-submit');
+    const ok = sum===130;
+    btn.innerText = ok ? '✅ المجموع: 130 — قيد الآن!' : `المجموع: ${sum} (المطلوب 130)`;
+    btn.style.opacity   = ok?'1':'0.5';
+    btn.style.background = ok?'var(--success)':'var(--border)';
+    btn.style.color = ok?'#000':'white';
+    return ok;
+}
+
+// ═══════════════════════
+// ADD SCORES
+// ═══════════════════════
+function addScores() {
+    if (!validateInputs()) { showToast('⚠️ المجموع يجب أن يكون 130'); return; }
+    const scores = [0,1,2,3].map(i=>parseInt(document.getElementById('input'+i).innerText)||0);
+    history.unshift({totals:[...totals], dealer:dealerIndex});
+    scores.forEach((s,i)=>totals[i]+=s);
+    dealerIndex=(dealerIndex+1)%4; currentRound++;
+    [0,1,2,3].forEach(i=>document.getElementById('input'+i).innerText='');
+    updateUI(); saveState(); setActive(0);
+    if(navigator.vibrate) navigator.vibrate([60,30,60]);
+    validateInputs();
+}
+
+// ═══════════════════════
+// UPDATE UI
+// ═══════════════════════
+function updateUI() {
+    document.getElementById('round-counter').innerText=`الجولة: ${currentRound}`;
+    const nearThreshold = Math.round(winLimit * 0.1); // آخر 10%
+
+    totals.forEach((s,i)=>{
+        const sc    = document.getElementById('score'+i);
+        const card  = document.getElementById('card'+i);
+        const badge = document.getElementById('near'+i);
+        sc.innerText = s;
+
+        const isNearWin = loseLimit
+            ? false
+            : (s >= winLimit - nearThreshold && s < winLimit);
+
+        // لون النقاط
+        if (loseLimit && s >= loseLimit) {
+            sc.className = 'total-score danger';
+            card.style.borderColor = 'var(--danger)';
+        } else if (s >= winLimit) {
+            sc.className = 'total-score danger';
+            card.style.borderColor = 'var(--danger)';
+        } else if (isNearWin) {
+            sc.className = 'total-score near-win';
+            card.style.borderColor = '#ff9f1c';
+        } else if (s >= winLimit * 0.8) {
+            sc.className = 'total-score warn';
+            card.style.borderColor = 'var(--warn)';
+        } else {
+            sc.className = 'total-score';
+            card.style.borderColor = 'var(--border)';
+        }
+
+        // شارة الاقتراب
+        badge.classList.toggle('show', isNearWin);
+
+        card.classList.toggle('is-dealer', i===dealerIndex);
+
+        // فوز
+        if (s >= winLimit && !winnerShown) {
+            winnerShown = true;
+            const name = document.getElementById('name'+i).value || `لاعب ${i+1}`;
+            setTimeout(()=>showWinner(name, s), 300);
+        }
+
+        // خسارة (اختياري)
+        if (loseLimit && s >= loseLimit && !loserShown) {
+            loserShown = true;
+            const name = document.getElementById('name'+i).value || `لاعب ${i+1}`;
+            setTimeout(()=>showLoser(name, s), 300);
+        }
+    });
+}
+
+// ═══════════════════════
+// WINNER + CONFETTI
+// ═══════════════════════
+function showWinner(name, score) {
+    document.getElementById('winner-name').innerText = `🎉 ${name}`;
+    document.getElementById('winner-score').innerText = `وصل إلى ${score} نقطة!`;
+    document.getElementById('winner-overlay').style.display = 'flex';
+    if(navigator.vibrate) navigator.vibrate([200,100,200,100,300]);
+    startConfetti();
+}
+function closeWinner() {
+    document.getElementById('winner-overlay').style.display='none';
+    stopConfetti();
+}
+
+// ═══════════════════════
+// LOSER
+// ═══════════════════════
+function showLoser(name, score) {
+    document.getElementById('loser-name').innerText = name;
+    const msg = LOSER_MSGS[Math.floor(Math.random() * LOSER_MSGS.length)];
+    document.getElementById('loser-msg').innerText = `وصل إلى ${score} نقطة!\n\n${msg}`;
+    document.getElementById('loser-overlay').style.display='flex';
+    if(navigator.vibrate) navigator.vibrate([300,100,300]);
+}
+function closeLoser() { document.getElementById('loser-overlay').style.display='none'; }
+
+// ═══════════════════════
+// CONFETTI
+// ═══════════════════════
+let confettiAnimId = null;
+function startConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    canvas.style.display = 'block';
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+    const pieces = Array.from({length:150}, ()=>({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height - canvas.height,
+        w: Math.random()*10+5, h: Math.random()*6+4,
+        color: `hsl(${Math.random()*360},90%,60%)`,
+        vx: Math.random()*3-1.5,
+        vy: Math.random()*4+2,
+        rot: Math.random()*360,
+        rspeed: Math.random()*5-2.5
+    }));
+    function draw() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        pieces.forEach(p=>{
+            ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+            ctx.fillStyle=p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+            ctx.restore();
+            p.x+=p.vx; p.y+=p.vy; p.rot+=p.rspeed;
+            if(p.y>canvas.height) { p.y=-10; p.x=Math.random()*canvas.width; }
         });
+        confettiAnimId = requestAnimationFrame(draw);
+    }
+    draw();
+    setTimeout(stopConfetti, 5000);
+}
+function stopConfetti() {
+    if(confettiAnimId) { cancelAnimationFrame(confettiAnimId); confettiAnimId=null; }
+    const canvas = document.getElementById('confetti-canvas');
+    canvas.style.display='none';
+    canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+}
 
-        // دالة تسجيل النقاط
-        function addScores() {
-            let roundScores = [];
-            let winnerFound = false;
+// ═══════════════════════
+// UNDO
+// ═══════════════════════
+function undo() {
+    if (!history.length) { showToast('⚠️ لا يوجد قيد للتراجع'); return; }
+    const last=history.shift();
+    totals=[...last.totals]; dealerIndex=last.dealer; currentRound--;
+    winnerShown = totals.some(s=>s>=winLimit);
+    loserShown  = loseLimit ? totals.some(s=>s>=loseLimit) : false;
+    updateUI(); saveState(); showToast('↩️ تم التراجع عن آخر قيد');
+}
 
-            // 1. جمع نقاط الجولة
-            for (let i = 0; i < 4; i++) {
-                // نستخدم convertArToEn قبل التحويل إلى رقم (parseInt)
-                let rawValue = inputs[i].value.trim(); // استخدام trim لإزالة المسافات
-                let enValue = convertArToEn(rawValue);
-                let val = parseInt(enValue) || 0; 
-                
-                roundScores.push(val);
-            }
-            
-            // تحقق إذا كانت كل المدخلات أصفار (لتجنب نشرة فارغة)
-            if (roundScores.every(score => score === 0)) {
-                alert('الرجاء إدخال نقاط النشرة قبل التسجيل.');
-                return;
-            }
+// ═══════════════════════
+// DEALER
+// ═══════════════════════
+function moveDealer() { dealerIndex=(dealerIndex+1)%4; updateUI(); }
 
-            // 2. تحديث المجموع التراكمي
-            for (let i = 0; i < 4; i++) {
-                totals[i] += roundScores[i];
-                scoresElements[i].innerText = totals[i];
-                inputs[i].value = ''; // مسح خانة الإدخال
-            }
+// ═══════════════════════
+// RESET
+// ═══════════════════════
+function confirmReset() {
+    if (!confirm('هل تريد تصفير النشرة بالكامل؟')) return;
+    totals=[0,0,0,0]; history=[]; currentRound=1; dealerIndex=0;
+    activeIndex=0; winnerShown=false; loserShown=false;
+    [0,1,2,3].forEach(i=>document.getElementById('input'+i).innerText='');
+    localStorage.removeItem('gameState_v14');
+    stopConfetti(); updateUI(); validateInputs(); setActive(0);
+    showToast('🔄 تم تصفير النشرة');
+}
 
-            // 3. إضافة الجولة للسجل
-            history.push({
-                round: currentRound,
-                scores: [...roundScores], // نقاط الجولة
-                totals: [...totals]      // المجموع التراكمي
-            });
-            
-            // 4. تحديث عرض السجل
-            updateHistoryLog();
+// ═══════════════════════
+// QR & SHARE
+// ═══════════════════════
+function buildResultsText() {
+    let text = `🃏 نشرة أبو سلاس\nالجولة: ${currentRound-1}\n${'─'.repeat(20)}\n`;
+    [0,1,2,3].forEach(i=>{
+        const name=document.getElementById('name'+i).value||`لاعب ${i+1}`;
+        text += `${name}: ${totals[i]} نقطة\n`;
+    });
+    text += `${'─'.repeat(20)}\nتطوير: أبو سلاس © 2026`;
+    return text;
+}
 
-            // 5. التحقق من الفائز/الخاسر
-            for (let i = 0; i < 4; i++) {
-                if (totals[i] >= WINNING_SCORE) {
-                    showWinner(i + 1, nameInputs[i].value);
-                    winnerFound = true;
-                }
-            }
+function openQR() {
+    const modal = document.getElementById('qr-modal');
+    const qrContainer = document.getElementById('qrcode');
+    const scoresEl = document.getElementById('qr-scores-text');
+    qrContainer.innerHTML = '';
 
-            if (!winnerFound) {
-                currentRound++;
-                roundCounter.innerText = `الجولة: ${currentRound}`;
-            }
+    const text = buildResultsText();
+    let html = '';
+    [0,1,2,3].forEach(i=>{
+        const name=document.getElementById('name'+i).value||`لاعب ${i+1}`;
+        html+=`<div style="display:flex;justify-content:space-between;padding:2px 0">
+            <span style="color:var(--primary);font-weight:700">${totals[i]}</span>
+            <span>${name}</span>
+        </div>`;
+    });
+    html+=`<div style="color:var(--text-sub);font-size:0.78rem;margin-top:6px;text-align:center">الجولة ${currentRound-1}</div>`;
+    scoresEl.innerHTML = html;
+
+    try {
+        new QRCode(qrContainer, {
+            text: text.substring(0, 200),
+            width:180, height:180,
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    } catch(e) {
+        qrContainer.innerHTML = '<p style="color:var(--text-sub);font-size:0.8rem;padding:20px">تعذّر إنشاء الباركود</p>';
+    }
+    modal.style.display = 'flex';
+}
+function closeQR() { document.getElementById('qr-modal').style.display='none'; }
+
+async function shareResults() {
+    const text = buildResultsText();
+    if (navigator.share) {
+        try {
+            await navigator.share({ title:'نشرة أبو سلاس', text });
+            showToast('✅ تمت المشاركة');
+        } catch(e) {
+            if(e.name!=='AbortError') copyResults();
         }
+    } else { copyResults(); }
+}
 
-        // دالة تحديث جدول السجل
-        function updateHistoryLog() {
-            historyBody.innerHTML = ''; // مسح الجدول القديم
-            
-            history.forEach((roundData) => {
-                let row = historyBody.insertRow();
-                
-                // خلية رقم الجولة
-                let cellRound = row.insertCell();
-                cellRound.innerText = roundData.round;
-                
-                // خلايا النقاط التراكمية (نضع المجموع التراكمي في الجدول)
-                roundData.totals.forEach((totalScore, index) => {
-                    let cellScore = row.insertCell();
-                    
-                    // إظهار آخر نتيجة مُسجلة بين قوسين (للتوضيح)
-                    let lastScore = roundData.scores[index];
-                    cellScore.innerText = `${totalScore} (${lastScore})`;
-                    
-                    // تمييز اللاعب الذي تخطى حد الخسارة
-                    if (totalScore >= WINNING_SCORE) {
-                        row.style.backgroundColor = '#f44336aa'; // خلفية حمراء
-                        row.style.color = 'white';
-                    }
-                });
-            });
-            // التمرير لأسفل الجدول لرؤية آخر نشرة
-            historyBody.scrollTop = historyBody.scrollHeight;
-        }
-        
-        // دالة التراجع عن آخر نشرة (تعديل النقاط)
-        function undoLastRound() {
-            if (history.length === 0) {
-                alert('لا توجد نشرات سابقة للتراجع عنها.');
-                return;
-            }
-            
-            const lastRound = history.pop(); // حذف آخر جولة
-            currentRound--;
-            roundCounter.innerText = `الجولة: ${currentRound}`;
-            
-            // استعادة المجموع التراكمي من الجولة التي قبل الأخيرة (أو صفر إن لم يكن هناك جولات سابقة)
-            if (history.length > 0) {
-                const previousTotals = history[history.length - 1].totals;
-                totals = [...previousTotals];
-            } else {
-                totals = [0, 0, 0, 0];
-            }
-            
-            // تحديث عرض المجموعات في واجهة المستخدم
-            for (let i = 0; i < 4; i++) {
-                scoresElements[i].innerText = totals[i];
-            }
-            
-            // إعادة تحديث جدول السجل
-            updateHistoryLog();
-            
-            alert(`تم التراجع عن نقاط الجولة رقم ${lastRound.round} بنجاح.`);
-            // إخفاء رسالة الفوز إن كانت ظاهرة
-            document.getElementById('winner-msg').style.display = 'none';
-        }
+function copyResults() {
+    const text = buildResultsText();
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text)
+            .then(()=>showToast('📋 تم النسخ!'))
+            .catch(()=>fallbackCopy(text));
+    } else { fallbackCopy(text); }
+    closeQR();
+}
+function fallbackCopy(text) {
+    const ta=document.createElement('textarea');
+    ta.value=text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('📋 تم النسخ!');
+}
 
-        function showWinner(playerNum, playerName) {
-            document.getElementById('winner-msg').style.display = 'flex';
-            document.getElementById('winner-text').innerText = ` مبروك! خسرت يالشيخ  
- ${playerName} 😹 ${WINNING_SCORE} نقطة.`;
-        }
-
-        function resetGame() {
-            // تصفير المتغيرات
-            totals = [0, 0, 0, 0];
-            history = [];
-            currentRound = 1;
-
-            // تصفير الواجهة
-            for (let i = 1; i <= 4; i++) {
-                document.getElementById('score' + i).innerText = '0';
-                document.getElementById('input' + i).value = '';
-            }
-            document.getElementById('winner-msg').style.display = 'none';
-            document.getElementById('history-body').innerHTML = ''; // مسح السجل
-            document.getElementById('round-counter').innerText = 'الجولة: 1';
-        }
-    </script>
+// ═══════════════════════
+// TOAST
+// ═══════════════════════
+function showToast(msg) {
+    const t=document.getElementById('toast');
+    t.innerText=msg; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2500);
+}
+</script>
 
 </body>
 </html>
